@@ -6,14 +6,17 @@ output: html_notebook
 Chúng tôi bắt đầu bằng cách mô tả một kỹ thuật phân tích dữ liệu đơn giản nhưng mạnh mẽ: xây dựng các bản tóm tắt dữ liệu. Mặc dù cách tiếp cận này không yêu cầu mô hình toán học hoặc xác suất, nhưng động lực của những tóm tắt mà chúng tôi mô tả sau này sẽ giúp chúng tôi hiểu cả hai chủ đề này.
 
 Bạn có thể nhận thấy rằng dữ liệu số thường được tóm tắt bằng giá trị trung bình . Ví dụ, chất lượng của một trường trung học đôi khi được tóm tắt bằng một con số: điểm trung bình trong một bài kiểm tra tiêu chuẩn. Đôi khi, số thứ hai được báo cáo: độ lệch chuẩn . Ví dụ: bạn có thể đọc một báo cáo cho biết điểm số là 680 cộng hoặc trừ 50, với độ lệch chuẩn là 50. Báo cáo đã tóm tắt toàn bộ điểm số chỉ bằng hai con số. Điều này có phù hợp không? Có thông tin quan trọng nào mà chúng tôi bỏ sót khi chỉ xem bản tóm tắt này thay vì toàn bộ danh sách không? Ở đây chúng tôi trả lời những câu hỏi này và thúc đẩy một số thống kê và biểu đồ tóm tắt hữu ích, bao gồm giá trị trung bình, độ lệch chuẩn, trung vị, tứ phân vị, biểu đồ và biểu đồ mật độ.
-1   Phân phối
-Để minh họa các khái niệm cần thiết để hiểu sự phân bố và cách chúng liên quan đến số liệu thống kê tóm tắt, chúng tôi sẽ giả vờ rằng chúng tôi phải mô tả chiều cao của các bạn cùng lớp với ET, một người ngoài hành tinh chưa từng nhìn thấy con người. Bước đầu tiên, chúng ta cần thu thập dữ liệu. Để làm điều này, chúng tôi yêu cầu học sinh báo cáo chiều cao của mình tính bằng inch. Chúng tôi yêu cầu họ cung cấp thông tin về giới tính vì chúng tôi biết có hai cách phân bổ giới tính khác nhau. Chúng tôi thu thập dữ liệu và lưu nó vào heightskhung dữ liệu có trong gói dslabs .
+
+1.Phân phối
+Để minh họa các khái niệm cần thiết để hiểu sự phân bố và cách chúng liên quan đến số liệu thống kê tóm tắt, chúng tôi sẽ giả vờ rằng chúng tôi phải mô tả chiều cao của các bạn cùng lớp với ET, một người ngoài hành tinh chưa từng nhìn thấy con người. Bước đầu tiên, chúng ta cần thu thập dữ liệu. Để làm điều này, chúng tôi yêu cầu học sinh báo cáo chiều cao của mình tính bằng inch. Chúng tôi yêu cầu họ cung cấp thông tin về giới tính vì chúng tôi biết có hai cách phân bổ giới tính khác nhau. Chúng tôi thu thập dữ liệu và lưu nó vào heights khung dữ liệu có trong gói dslabs .
 ```{r}
+install.packages("dslabs")
 library(dslabs)
 ```
 Một cách để truyền đạt độ cao cho ET là chỉ cần gửi cho anh ấy danh sách 1050 độ cao này. Nhưng có nhiều cách hiệu quả hơn để truyền đạt thông tin này và việc hiểu khái niệm phân phối sẽ giúp ích. Để đơn giản hóa việc giải thích, trước tiên chúng tôi tập trung vào chiều cao của nam giới. Chúng tôi kiểm tra dữ liệu chiều cao của phụ nữ trong Phần 1.10 .
 
 Hóa ra, trong một số trường hợp, trung bình và độ lệch chuẩn là tất cả những gì chúng ta cần để hiểu dữ liệu. Chúng ta sẽ tìm hiểu các kỹ thuật trực quan hóa dữ liệu sẽ giúp chúng ta xác định khi nào bản tóm tắt hai con số này là phù hợp. Những kỹ thuật tương tự này sẽ được sử dụng như một giải pháp thay thế khi hai số là không đủ.
+
 1.1 Các loại biến
 Chúng ta sẽ làm việc với hai loại biến: phân loại và số. Mỗi nhóm có thể được chia thành hai nhóm khác: nhóm phân loại có thể có thứ tự hoặc không, trong khi các biến số có thể rời rạc hoặc liên tục.
 
@@ -31,8 +34,9 @@ prop.table(table(state.region))
 #>          0.18          0.32          0.24          0.26
 ```
 Khi dữ liệu ở dạng số, nhiệm vụ xây dựng một bản tóm tắt dựa trên phân bố sẽ khó khăn hơn. Chúng tôi giới thiệu một vấn đề nhân tạo, mang tính minh họa, thúc đẩy, giúp chúng tôi giới thiệu các khái niệm cần thiết để hiểu về phân bố.
+
 1.2 Hàm phân phối tích lũy theo kinh nghiệm
-Dữ liệu số không được phân loại cũng có phân phối. Nói chung, khi dữ liệu không được phân loại, việc báo cáo tần suất của mỗi mục không phải là một bản tóm tắt hiệu quả vì hầu hết các mục đều là duy nhất. Trong nghiên cứu điển hình của chúng tôi, trong khi một số học sinh báo cáo chiều cao là 68 inch thì chỉ có một học sinh báo cáo chiều cao là 68.503937007874inch và chỉ một học sinh báo cáo chiều cao 68.8976377952756là inch. Chúng tôi giả định rằng họ đã chuyển đổi lần lượt từ 174 và 175 cm.
+Dữ liệu số không được phân loại cũng có phân phối. Nói chung, khi dữ liệu không được phân loại, việc báo cáo tần suất của mỗi mục không phải là một bản tóm tắt hiệu quả vì hầu hết các mục đều là duy nhất. Trong nghiên cứu điển hình của chúng tôi, trong khi một số học sinh báo cáo chiều cao là 68 inch thì chỉ có một học sinh báo cáo chiều cao là 68.503937007874inch và chỉ một học sinh báo cáo chiều cao là 68.8976377952756 inch. Chúng tôi giả định rằng họ đã chuyển đổi lần lượt từ 174 và 175 cm.
 
 Sách giáo khoa thống kê dạy chúng ta rằng một cách hữu ích hơn để xác định phân bố cho dữ liệu số là xác định hàm báo cáo tỷ lệ của các mục nhập dữ liệu x đó là dưới đây a,với mọi giá trị có thể có của a. Hàm này được gọi là hàm phân phối tích lũy thực nghiệm (eCDF) và thường được ký hiệu bằng F :
       F(a) = biến ngẫu nhiên X lấy giá trị nhỏ hơn hay bằng a
@@ -43,23 +47,26 @@ install.packages("conflicted")
 ```
 
 ```{r}
+install.packages("tidyverse")
 library(tidyverse)
 heights |> filter(sex == "Male") |> 
   ggplot(aes(height)) + 
   stat_ecdf() +
   labs(x = "a", y = "F(a)")
 ```
-Tương tự như bảng tần số thực hiện đối với dữ liệu phân loại, eCDF xác định sự phân bổ cho dữ liệu số. Từ đồ thị, chúng ta có thể thấy rằng 16% giá trị nhỏ hơn 65, vìF(66)= 0,1637931 hoặc 84% giá trị dưới 72, vì F(72)= 0,841133, v.v. Trên thực tế, chúng ta có thể báo cáo tỷ lệ các giá trị giữa hai độ cao bất kỳ, chẳng hạn a và b, bằng cách tính toán 
-F(b) - F(a)
-. Điều này có nghĩa là nếu chúng tôi gửi biểu đồ trên cho ET, anh ấy sẽ có tất cả thông tin cần thiết để xây dựng lại toàn bộ danh sách. Diễn giải câu “một bức tranh đáng giá ngàn lời nói”, trong trường hợp này, một bức tranh có giá trị như 812 con số.
+Tương tự như bảng tần số thực hiện đối với dữ liệu phân loại, eCDF xác định sự phân bổ cho dữ liệu số. Từ đồ thị, chúng ta có thể thấy rằng 16% giá trị nhỏ hơn 65, vì F(66)= 0,1637931 hoặc 84% giá trị dưới 72, vì F(72)= 0,841133, v.v. Trên thực tế, chúng ta có thể báo cáo tỷ lệ các giá trị giữa hai độ cao bất kỳ, chẳng hạn a và b, bằng cách tính toán 
+F(b) - F(a). Điều này có nghĩa là nếu chúng tôi gửi biểu đồ trên cho ET, anh ấy sẽ có tất cả thông tin cần thiết để xây dựng lại toàn bộ danh sách. Diễn giải câu “một bức tranh đáng giá ngàn lời nói”, trong trường hợp này, một bức tranh có giá trị như 812 con số.
 
-Lưu ý: lý do chúng tôi thêm từ thực nghiệm là vì, như chúng ta sẽ thấy trong Phần 4.1 ), hàm phân phối tích lũy (CDF có thể được định nghĩa về mặt toán học, nghĩa là không có bất kỳ dữ liệu nào.
+Lưu ý: lý do chúng tôi thêm từ thực nghiệm là vì, như chúng ta sẽ thấy trong Phần 4.1 ), hàm phân phối tích lũy (CDF) có thể được định nghĩa về mặt toán học, nghĩa là không có bất kỳ dữ liệu nào.
+
 1.3 Biểu đồ
 Mặc dù khái niệm eCDF được thảo luận rộng rãi trong sách giáo khoa thống kê nhưng biểu đồ tóm tắt thực tế không phổ biến lắm trong thực tế. Lý do chính là nó không dễ dàng truyền tải các đặc điểm được quan tâm như: phân phối tập trung ở giá trị nào? Sự phân phối có đối xứng không? Phạm vi nào chứa 95% giá trị? Biểu đồ được ưa thích hơn nhiều vì chúng tạo điều kiện thuận lợi cho việc trả lời những câu hỏi như vậy. Biểu đồ chỉ hy sinh một chút thông tin để tạo ra những bản tóm tắt dễ hiểu hơn nhiều.
 
 Cách đơn giản nhất để tạo biểu đồ là chia khoảng dữ liệu của chúng ta thành các thùng không chồng chéo có cùng kích thước. Sau đó, đối với mỗi thùng, chúng tôi đếm số giá trị nằm trong khoảng đó. Biểu đồ biểu thị các số đếm này dưới dạng các thanh có đáy của thanh được xác định bởi các khoảng. Đây là biểu đồ cho dữ liệu chiều cao chia phạm vi giá trị thành các khoảng một inch:
 (49.5,50.5] ,(50.5,51.5],(51.5,52.5],(52.5,53.5],...,(82.5,83.5]
 ```{r}
+install.packages("tidyverse")
+library(tidyverse)
 heights |> filter(sex == "Male") |> 
   ggplot(aes(height)) + 
   geom_histogram(binwidth = 1, color = "black")
@@ -69,32 +76,96 @@ Như bạn có thể thấy trong hình trên, biểu đồ tương tự như ba
 Nếu chúng tôi gửi âm mưu này tới ET, anh ấy sẽ ngay lập tức biết được một số đặc tính quan trọng về dữ liệu của chúng tôi. Đầu tiên, phạm vi dữ liệu là từ 50 đến 84 với phần lớn (hơn 95%) nằm trong khoảng từ 63 đến 75 inch. Thứ hai, chiều cao gần đối xứng khoảng 69 inch. Ngoài ra, bằng cách cộng số lượng, ET có thể thu được tỷ lệ gần đúng rất tốt của dữ liệu trong bất kỳ khoảng thời gian nào. Do đó, biểu đồ trên không chỉ dễ diễn giải mà còn cung cấp gần như tất cả thông tin có trong danh sách thô gồm 812 độ cao với số lượng khoảng 30 thùng.
 
 Chúng ta mất thông tin gì? Lưu ý rằng tất cả các giá trị trong mỗi khoảng đều được xử lý như nhau khi tính toán chiều cao của thùng. Vì vậy, ví dụ: biểu đồ không phân biệt giữa 64, 64,1 và 64,2 inch. Cho rằng những khác biệt này hầu như không thể nhận thấy bằng mắt thường, nên ý nghĩa thực tế là không đáng kể và chúng tôi có thể tóm tắt dữ liệu chỉ còn 23 con số.
+
 1.4 Mật độ làm mịn
 Biểu đồ mật độ mịn tương tự như biểu đồ, nhưng dữ liệu không được chia thành các thùng. Đây là biểu đồ mật độ mượt mà trông như thế nào đối với dữ liệu độ cao của chúng tôi:
 ```{r}
+install.packages("tidyverse")
+library(tidyverse)
 heights |> 
   filter(sex == "Male") |> 
   ggplot(aes(height)) + 
   geom_density(alpha = 0.2, fill = "#00BFC4")
 ```
-Trong biểu đồ này, chúng ta không còn các cạnh sắc nét ở các ranh giới khoảng và nhiều đỉnh cục bộ đã bị loại bỏ. Ngoài ra, tỷ lệ của trục y đã thay đổi từ số lượng sang mật độ .
+Trong biểu đồ này, chúng ta không còn các cạnh sắc nét ở các ranh giới khoảng và nhiều đỉnh cục bộ đã bị loại bỏ. Ngoài ra, tỷ lệ của trục y đã thay đổi từ số lượng sang mật độ.
 
 Để hiểu được mật độ mịn, chúng ta phải hiểu các ước tính , một chủ đề mà chúng ta sẽ không đề cập đến sau này. Tuy nhiên, chúng tôi cung cấp giải thích theo kinh nghiệm để giúp bạn hiểu những điều cơ bản.
 
 Khái niệm mới chính mà bạn phải hiểu là chúng tôi giả định rằng danh sách các giá trị được quan sát của chúng tôi là tập hợp con của một danh sách lớn hơn nhiều các giá trị không được quan sát. Về chiều cao, bạn có thể tưởng tượng rằng danh sách 812 nam sinh của chúng tôi đến từ một danh sách giả định chứa tất cả chiều cao của tất cả nam sinh trên toàn thế giới được đo rất chính xác. Giả sử có 1.000.000 phép đo này. Danh sách giá trị này có sự phân bổ, giống như bất kỳ danh sách giá trị nào và sự phân bổ lớn hơn này thực sự là điều chúng tôi muốn báo cáo cho ET vì nó tổng quát hơn nhiều. Thật không may, chúng ta không được nhìn thấy nó.
 
-Tuy nhiên, chúng tôi đưa ra một giả định có thể giúp chúng tôi ước chừng nó. Nếu chúng ta có 1.000.000 giá trị, được đo rất chính xác, chúng ta có thể tạo biểu đồ với các thùng rất nhỏ. Giả định là nếu chúng tôi hiển thị điều này thì chiều cao của các thùng liên tiếp sẽ tương tự nhau. Đây chính là ý nghĩa của từ trơn tru: chúng tôi không có bước nhảy vọt về độ cao của các thùng liên tiếp
-Tuy nhiên, hãy nhớ rằng trơn tru là một thuật ngữ tương đối. Chúng ta thực sự có thể kiểm soát độ mịn của đường cong xác định mật độ mịn thông qua một tùy chọn trong hàm tính toán đường cong mật độ mịn. Dưới đây là hai ví dụ sử dụng các mức độ mượt mà khác nhau trên cùng một biểu đồ:
+Tuy nhiên, chúng tôi đưa ra một giả định có thể giúp chúng tôi ước chừng nó. Nếu chúng ta có 1.000.000 giá trị, được đo rất chính xác, chúng ta có thể tạo biểu đồ với các thùng rất nhỏ. Giả định là nếu chúng tôi hiển thị điều này thì chiều cao của các thùng liên tiếp sẽ tương tự nhau. Đây chính là ý nghĩa của từ độ mịn: chúng tôi không có bước nhảy vọt về độ cao của các thùng liên tiếp. Dưới đây chúng tôi có một biểu đồ giả định với các thùng có kích thước 1:
+
+```{r summaries--simulated-data-histogram-1, echo = FALSE}
+library(tidyverse)
+set.seed(1988)
+x <- data.frame(height = c(rnorm(1000000,69,3), rnorm(1000000,65,3)))
+x |> ggplot(aes(height)) + geom_histogram(binwidth = 1, color = "black")
+```
+
+Chúng ta tạo các thùng càng nhỏ thì biểu đồ càng mịn. Dưới đây là biểu đồ có chiều rộng thùng là 1, 0,5 và 0,1:
+
+```{r summaries-simulated-data-histogram-2, fig.width = 9, fig.height = 3,  out.width = "100%",echo = FALSE, message = FALSE}
+p1 <- x |> ggplot(aes(height)) + geom_histogram(binwidth = 1) + ggtitle("binwidth = 1")
+p2 <- x |> ggplot(aes(height)) + geom_histogram(binwidth = 0.5) + ggtitle("binwidth = 0.5") 
+p3 <- x |> ggplot(aes(height)) + geom_histogram(binwidth = 0.1) + ggtitle("binwidth = 0.1")
+library(gridExtra)
+grid.arrange(p1, p2, p3, nrow = 1)
+```
+
+Mật độ mịn về cơ bản là đường cong đi qua đỉnh của thanh biểu đồ khi các thùng rất nhỏ. Để làm cho đường cong không phụ thuộc vào kích thước giả định của danh sách giả định, chúng tôi tính toán đường cong theo tần số thay vì số lượng:
+
+```{r, simulated-density-1, echo = FALSE}
+x |> ggplot(aes(height)) + 
+  geom_histogram(aes(y = after_stat(density)), binwidth = 0.1) +
+  geom_line(stat = 'density')
+```
+
+
+Bây giờ, trở lại thực tế. Chúng tôi không có hàng triệu phép đo. Thay vào đó, chúng tôi có 812 và chúng tôi không thể tạo biểu đồ với các thùng rất nhỏ.
+
+Do đó, chúng tôi tạo biểu đồ, sử dụng kích thước thùng phù hợp với dữ liệu và tần số tính toán của chúng tôi thay vì đếm và chúng tôi vẽ một đường cong mượt mà đi qua đỉnh của thanh biểu đồ. Các sơ đồ sau đây minh họa các bước dẫn đến mật độ mịn:
+
+```{r summaries-smooth-density-2, echo = FALSE, out.width = "100%"}
+library(tidyverse)
+hist1 <- heights |> 
+  filter(sex == "Male") |> 
+  ggplot(aes(height)) +
+  geom_histogram(aes(y = after_stat(density)), binwidth = 1, color = "black") 
+hist2 <- hist1 +
+  geom_line(stat = 'density')
+hist3 <- hist1 + 
+  geom_point(data = ggplot_build(hist2)$data[[1]], aes(x,y), col = "blue")
+hist4 <- ggplot() + geom_point(data = ggplot_build(hist2)$data[[1]], aes(x,y), col = "blue") + 
+  xlab("height") + ylab("density")
+hist5 <- hist4 + geom_line(data = ggplot_build(hist2)$data[[2]], aes(x,y))
+hist6 <- heights |> 
+  filter(sex == "Male") |> 
+  ggplot(aes(height)) +
+  geom_density(alpha = 0.2, fill="#00BFC4", col = 0) +
+  geom_line(stat = 'density') +
+  scale_y_continuous(limits = layer_scales(hist2)$y$range$range)
+  
+grid.arrange(hist1, hist3, hist4, hist5, hist2, hist6, nrow = 2)
+```
+
+Tuy nhiên, hãy nhớ rằng độ mịn là một thuật ngữ tương đối. Chúng ta thực sự có thể kiểm soát độ mịn của đường cong xác định mật độ mịn thông qua một tùy chọn trong hàm tính toán đường cong mật độ mịn. Dưới đây là hai ví dụ sử dụng các mức độ mịn khác nhau trên cùng một biểu đồ:
 ```{r}
 install.packages("gridExtra")
+library("gridExtra")
 
 ```
 ```{r}
+library("gridExtra")
 detach("package:gridExtra", unload = TRUE)
 ```
 
 
-```{r}
+```{r summaries-densities-different-smoothness, out.width = "100%", fig.width = 6, fig.height = 3, cache=FALSE}
+library(tidyverse)
+library(dplyr)
+library(gridExtra)
+
+
 p <- heights |> filter(sex == "Male") |> 
   ggplot(aes(height)) +
   geom_histogram(aes(y = after_stat(density)), binwidth = 1, alpha = 0.5) 
@@ -114,7 +185,25 @@ Chúng ta cần thực hiện lựa chọn này một cách cẩn thận vì b�
 
 Mặc dù biểu đồ là bản tóm tắt không có giả định nhưng mật độ được làm mịn dựa trên một số giả định.
 
-Lưu ý rằng việc diễn giải trục y của biểu đồ mật độ trơn không hề đơn giản. Nó được chia tỷ lệ sao cho diện tích bên dưới đường cong mật độ cộng lại bằng 1. Nếu bạn tưởng tượng chúng ta tạo thành một thùng có chiều dài cơ sở là 1 đơn vị, giá trị trục y cho chúng ta biết tỷ lệ của các giá trị trong thùng đó. Tuy nhiên, điều này chỉ đúng với các thùng có kích thước 1. Đối với các khoảng kích thước khác, cách tốt nhất để xác định tỷ lệ dữ liệu trong khoảng đó là tính tỷ lệ của tổng diện tích chứa trong khoảng đó. 
+Lưu ý rằng việc diễn giải trục y của biểu đồ mật độ trơn không hề đơn giản. Nó được chia tỷ lệ sao cho diện tích bên dưới đường cong mật độ cộng lại bằng 1. Nếu bạn tưởng tượng chúng ta tạo thành một thùng có chiều dài cơ sở là 1 đơn vị, giá trị trục y cho chúng ta biết tỷ lệ của các giá trị trong thùng đó. Tuy nhiên, điều này chỉ đúng với các thùng có kích thước 1. Đối với các khoảng kích thước khác, cách tốt nhất để xác định tỷ lệ dữ liệu trong khoảng đó là tính tỷ lệ của tổng diện tích chứa trong khoảng đó. Ví dụ: đây là tỷ lệ của các giá trị từ 65 đến 68:
+
+```{r summaries-area-under-curve, echo = FALSE}
+d <- with(heights, density(height[sex == "Male"]))
+tmp <- data.frame(height = d$x, density = d$y)
+tmp |> ggplot(aes(height,density)) + geom_line() + 
+  geom_area(aes(x = height, y = density), data = filter(tmp, between(height, 65, 68)), alpha = 0.2, fill = "#00BFC4")
+```
+Tỷ lệ diện tích này là khoảng 0,3, nghĩa là khoảng 30% chiều cao của nam giới nằm trong khoảng từ 65 đến 68 inch.
+
+Bằng cách hiểu điều này, chúng tôi sẵn sàng sử dụng mật độ mịn làm bản tóm tắt. Đối với tập dữ liệu này, chúng tôi sẽ cảm thấy khá thoải mái với giả định về độ mịn và do đó với việc chia sẻ hình ảnh đẹp mắt về mặt thẩm mỹ này với ET, mà anh ấy có thể sử dụng để hiểu dữ liệu về chiều cao nam giới của chúng tôi:
+
+```{r summaries-example-of-smoothed-density-2, echo = FALSE}
+heights |> 
+  filter(sex == "Male") |> 
+  ggplot(aes(height)) + 
+  geom_density(alpha = 0.2, fill = "#00BFC4")
+```
+
 1.5 Phân phối chuẩn
 Biểu đồ và biểu đồ mật độ cung cấp những tóm tắt tuyệt vời về sự phân bố. Nhưng chúng ta có thể tóm tắt thêm nữa không? Chúng ta thường thấy độ lệch trung bình và độ lệch chuẩn được sử dụng làm số liệu thống kê tóm tắt: một bản tóm tắt gồm hai số! Để hiểu những tóm tắt này là gì và tại sao chúng được sử dụng rộng rãi như vậy, chúng ta cần hiểu phân phối chuẩn.
 
@@ -126,21 +215,28 @@ Thay vì sử dụng dữ liệu, phân phối chuẩn được xác định b�
 $$
 Pr(a < x ≤ b)= \int_{a}^{b} \frac{1}{\sqrt{2\pi}{\sigma}}e^{-\frac{1}{2}} {(\frac{x-μ}{\sigma})}^2dx
 $$
-Bạn không cần phải ghi nhớ hay hiểu chi tiết công thức. Nhưng lưu ý rằng nó được xác định hoàn toàn chỉ bằng hai tham số:μ Và σ .
-Các ký hiệu còn lại trong công thức biểu thị các khoảng kết thúc,a Và b 
-và các hằng số toán học đã biết π và e 
-. Hai thông số này μ Và σ
-, được gọi tương ứng là giá trị trung bình (còn gọi là giá trị trung bình ) và độ lệch chuẩn (SD) của phân bố (và là các chữ cái Hy Lạp cho m
-Và s).
+Bạn không cần phải ghi nhớ hay hiểu chi tiết công thức. Nhưng lưu ý rằng nó được xác định hoàn toàn chỉ bằng hai tham số:μ Và σ. Các ký hiệu còn lại trong công thức biểu thị các khoảng kết thúc,a Và b và các hằng số toán học đã biết π và e. Hai thông số này μ Và σ, được gọi tương ứng là giá trị trung bình (còn gọi là giá trị trung bình ) và độ lệch chuẩn (SD) của phân bố (và là các chữ cái Hy Lạp cho m và s).
+
+Sự phân bố đối xứng, tập trung ở mức trung bình và hầu hết các giá trị (khoảng 95%) đều nằm trong phạm vi 2 SD so với mức trung bình. Đây là phân phối chuẩn khi giá trị trung bình là 0 và SD là 1:
+
+```{r summaries-normal-distribution-density, echo = FALSE}
+m <- 0; s <- 1
+norm_dist <- data.frame(x = seq(-4, 4,len = 50)*s + m) |> mutate(density = dnorm(x, m, s))
+norm_dist |> ggplot(aes(x,density)) + geom_line()
+```
+
 Thực tế là phân bố được xác định chỉ bằng hai tham số ngụ ý rằng nếu một tập dữ liệu gần đúng bằng phân phối chuẩn, thì tất cả thông tin cần thiết để mô tả phân bố có thể được mã hóa chỉ bằng hai số: trung bình và độ lệch chuẩn. Bây giờ chúng ta xác định các giá trị này cho một danh sách số tùy ý.
+
 Đối với danh sách các số chứa trong vectơ x, giá trị trung bình được xác định là:
 ```{r}
 m <- sum(x) / length(x)
 ```
+
 và SD được định nghĩa là:
 ```{r}
 s <- sqrt(sum((x - m)^2) / length(x))
 ```
+
 có thể được hiểu là khoảng cách trung bình giữa các giá trị và giá trị trung bình của chúng.
 
 Hãy tính các giá trị chiều cao của nam giới mà chúng ta sẽ lưu trữ trong đối tượng x:
@@ -148,13 +244,470 @@ Hãy tính các giá trị chiều cao của nam giới mà chúng ta sẽ lưu 
 index <- heights$sex == "Male"
 x <- heights$height[index]
 ```
-Các hàm dựng sẵn meanvà sdcó thể sử dụng tại đây:
+Các hàm dựng sẵn mean và sd có thể sử dụng tại đây:
 ```{r}
 m <- mean(x)
 s <- sd(x)
 ```
-Vì những lý do được giải thích ở Mục 10.2.1 , sd(x)hãy chia cho length(x)-1thay vì length(x). Nhưng lưu ý rằng khi nào length(x)lớn sd(x)và sqrt(sum((x-mu)^2) / length(x))thực tế bằng nhau.
+
+
+Vì những lý do được giải thích ở Mục 10.2.1, sd(x) hãy chia cho length(x)-1 thay vì length(x). Nhưng lưu ý rằng khi nào length(x)lớn sd(x)và sqrt(sum((x-mu)^2) / length(x))thực tế bằng nhau.
+
+Đây là biểu đồ về mật độ trơn tru và phân phối chuẩn với giá trị trung bình = 69,3 và SD = 3,6 được vẽ dưới dạng đường màu đen với mật độ mịn chiều cao học sinh của chúng tôi có màu xanh lam:
+
+```{r summaries-data-and-normal-densities, echo = FALSE}
+norm_dist <- data.frame(x = seq(-4, 4, len = 50)*s + m) |> 
+  mutate(density = dnorm(x, m, s))
+
+heights |> filter(sex == "Male") |> ggplot(aes(height)) +
+  geom_density(fill = "#00BFC4") +
+  geom_line(aes(x, density),  data = norm_dist) 
+```
+Ở đây, phân phối chuẩn dường như là một xấp xỉ khá tốt. Bây giờ chúng ta sẽ thấy phép tính gần đúng này hoạt động tốt như thế nào trong việc dự đoán tỷ lệ các giá trị trong các khoảng.
+
 1.6 Đơn vị tiêu chuẩn
 Đối với dữ liệu có phân bố xấp xỉ chuẩn, sẽ thuận tiện hơn khi nghĩ về đơn vị tiêu chuẩn . Đơn vị tiêu chuẩn của một giá trị cho chúng ta biết độ lệch chuẩn so với giá trị trung bình là bao nhiêu. Cụ thể, đối với một giá trị xtừ một vectơ X, chúng tôi xác định giá trị của xtheo đơn vị tiêu chuẩn tương ứng là z = (x - m)/swith mvà sđộ lệch trung bình và độ lệch chuẩn của X. Tại sao điều này lại thuận tiện?
+
+Đầu tiên hãy nhìn lại công thức phân phối chuẩn và lưu ý rằng số mũ đang được lũy thừa là -z^2/2 với z tương đương với x trong các đơn vị tiêu chuẩn. Bởi vì tối đa của e^(-z^2/2) là khi z = 0, điều này giải thích tại sao mức phân phối tối đa lại xảy ra ở mức trung bình. Nó cũng giải thích tính đối xứng vì -z^2/2 đối xứng quanh 0. Thứ hai, lưu ý rằng nếu chúng ta chuyển đổi dữ liệu được phân phối bình thường sang đơn vị tiêu chuẩn, chẳng hạn, chúng ta có thể nhanh chóng biết liệu một người có ở mức trung bình hay không (z = 0), một trong những lớn nhất (z ≈ 2), một trong những nhỏ nhất (z ≈ -2) hoặc một trường hợp cực kỳ hiếm gặp (z > 3 hoặc z < -3). Hãy nhớ rằng đơn vị ban đầu là gì không quan trọng, các quy tắc này áp dụng cho bất kỳ dữ liệu nào gần đúng bình thường.
+
+Trong R, chúng ta có thể lấy đơn vị tiêu chuẩn bằng cách sử dụng hàm scale:
+```{R}
+z <- scale(x)
+```
+
+Bây giờ, để xem thử có bao nhiêu người đàn ông trong khoảng 2 SDs so với mức trung bình, chúng ta chỉ cần gõ: 
+```{R}
+mean(abs(z) < 2)
+#> [1] 0.95
+```
+Tỉ lệ này là khoảng 95%, đó là điều mà phân phối chuẩn dự đoán! Để xác nhận thêm rằng, trên thực tế, phép tính gần đúng là tốt, chúng ta có thể sử dụng đồ thị lượng tử-lượng vị.  
+
+1.7 Biểu đồ lượng tử-lượng vị
+Một cách có hệ thống để đánh giá mức độ phù hợp của phân phối chuẩn với dữ liệu là kiểm tra xem tỷ lệ được quan sát và dự đoán có khớp nhau hay không. Nói chung, đây là cách tiếp cận của biểu đồ lượng tử-lượng vị (QQ-plot).
+
+Trước tiên, hãy xác định các lượng tử lý thuyết cho phân phối chuẩn. Trong các sách thống kê chúng tôi dùng ký hiệu Φ(x) để xác định hàm cung cấp cho chúng ta tỷ lệ của dữ liệu phân phối chuẩn chuẩn nhỏ hơn x. Ví dụ, Φ(-1.96) = 0.025 Và Φ(1.96) = 0.975. Trong R, chúng ta có thể đánh giá Φ sử dụng pnorm chức năng:
+
+```{R}
+pnorm(-1.96)
+#> [1] 0.025
+```
+
+Hàm nghịch đảo Φ^(-1)(x) cung cấp cho chúng ta các lượng tử lý thuyết cho phân phối chuẩn. Ví dụ, Φ^(-1)(0.975) = 1.96. Trong R, chúng ta có thể đánh giá nghịch đảo của Φ sử dụng qnorm chức năng.
+
+```{R}
+qnorm(0.975)
+#> [1] 1.96
+```
+
+Lưu ý rằng theo mặc định, những phép tính này dành cho phân phối chuẩn chuẩn (trung bình = 0, độ lệch chuẩn = 1), nhưng chúng ta cũng có thể xác định những phép tính này cho bất kỳ phân phối chuẩn nào. Chúng ta có thể thực hiện việc này bằng cách sử dụng các đối số mean và sd trong hàm pnorm và qnorm. Ví dụ: chúng ta có thể sử dụng qnorm để xác định các lượng tử của một phân bố có độ lệch chuẩn và trung bình cụ thể
+
+```{R}
+qnorm(0.975, mean = 5, sd = 2)
+#> [1] 8.92
+```
+
+Đối với phân phối chuẩn, tất cả các phép tính liên quan đến lượng tử được thực hiện mà không có dữ liệu, do đó có tên là lượng tử lý thuyết. Nhưng lượng vị có thể được xác định cho bất kỳ phân phối nào, kể cả phân phối thực nghiệm. Vì vậy, nếu chúng ta có dữ liệu trong một vectơ, chúng ta có thể xác định lượng tử liên quan đến bất kỳ tỷ lệ nào p như q trong đó tỷ lệ của các giá trị dưới đây q là p. Sử dụng mã R, chúng ta có thể xác định q giá trị của mean(x <= q) = p. Chú ý rằng không phải tất cả p có một q mà tỷ lệ chính xác là p. Có nhiều cách để xác định điều tốt nhất q như đã thảo luận trong phần trợ giúp cho quantile hàm này.
+
+Để đưa ra một ví dụ nhanh, đối với dữ liệu chiều cao của nam giới, chúng ta có:
+
+```{R}
+mean(x <= 69.5)
+#> [1] 0.515
+```
+
+
+Vì vậy, khoảng 50% ngắn hơn hoặc bằng 69 inch. Điều này ngụ ý rằng nếu p = 0.50 sau đó q = 69.5.
+
+Ý tưởng của biểu đồ QQ là nếu dữ liệu của bạn gần đúng với phân phối chuẩn thì các phân vị của dữ liệu của bạn sẽ tương tự như các phân vị của phân phối chuẩn. Để xây dựng biểu đồ QQ, chúng ta thực hiện như sau:
+
+ 1. Xác định vectơ của m tỷ lệ p1,p2,...,pm.
+ 2. Xác định một vectơ lượng tử q1,q2,...,qm cho dữ liệu của bạn về tỷ lệ p1,p2,...,pm. Chúng tôi gọi đây là lượng tử mẫu.
+ 3.Xác định vectơ lượng tử lý thuyết cho các tỷ lệ p1,...,pm đối với phân phối chuẩn có cùng mức trung bình và độ lệch chuẩn như dữ liệu.
+ 4. Vẽ biểu đồ các lượng tử mẫu so với các lượng tử lý thuyết.
+Hãy xây dựng biểu đồ QQ bằng mã R. Bắt đầu bằng cách xác định vectơ tỷ lệ.
+
+```{R}
+p <- seq(0.05, 0.95, 0.05)
+```
+
+Để có được lượng tử từ dữ liệu, chúng ta có thể sử dụng quantile hàm như thế này:
+
+```{R}
+sample_quantiles <- quantile(x, p)
+```
+
+Để thu được các lượng tử phân phối chuẩn theo lý thuyết với giá trị trung bình và SD tương ứng, chúng tôi sử dụng hàm qnorm:
+
+```{R}
+theoretical_quantiles <- qnorm(p, mean = mean(x), sd = sd(x))
+```
+
+Để xem chúng có khớp hay không, chúng ta vẽ chúng với nhau và vẽ đường đồng nhất:
+
+```{R}
+qplot(theoretical_quantiles, sample_quantiles) + geom_abline()
+#> Warning: `qplot()` was deprecated in ggplot2 3.4.0.
+```
+
+
+Lưu ý rằng mã này sẽ trở nên rõ ràng hơn nhiều nếu chúng ta sử dụng các đơn vị tiêu chuẩn:
+
+```{R}
+sample_quantiles <- quantile(z, p)
+theoretical_quantiles <- qnorm(p) 
+qplot(theoretical_quantiles, sample_quantiles) + geom_abline()
+```
+
+Đoạn mã trên được đưa vào để giúp mô tả các ô QQ. Tuy nhiên, trong thực tế, việc sử dụng mã ggplot2 sẽ dễ dàng hơn :
+
+```{R}
+heights |> filter(sex == "Male") |>
+  ggplot(aes(sample = scale(height))) + 
+  geom_qq() +
+  geom_abline()
+```
+
+Trong khi đối với hình minh họa ở trên, chúng tôi đã sử dụng 20 lượng vị, mặc định của geom_qq hàm này là sử dụng nhiều lượng vị như các điểm dữ liệu.
+
+Lưu ý rằng mặc dù ở đây chúng tôi đã sử dụng qqplot để so sánh một phân bố quan sát được với phân bố chuẩn xác định về mặt toán học, nhưng các biểu đồ QQ có thể được sử dụng để so sánh hai phân bố bất kỳ.
+
+1.8 phần trăm
+Trước khi tiếp tục, hãy xác định một số thuật ngữ thường được sử dụng trong phân tích dữ liệu khám phá.
+
+Phần trăm là trường hợp đặc biệt của lượng tử thường được sử dụng. Phần trăm là lượng tử bạn thu được khi thiết lập p tại 0.01, 0.02,..., 0.99. Ví dụ, chúng ta gọi trường hợp của p = 0.25 phân vị thứ 25, cung cấp cho chúng ta một con số chứa 25% dữ liệu bên dưới. Phân vị nổi tiếng nhất là thứ 50, còn được gọi là trung vị .
+
+Đối với phân phối chuẩn, trung vị và trung bình là như nhau, nhưng điều này thường không xảy ra.
+
+Một trường hợp đặc biệt khác nhận được tên là tứ phân vị , có được khi thiết lập p = 0.25, 0.50 và 0.75.
+
+
+1.9 Biểu đồ hình hộp
+Để giới thiệu sơ đồ hộp, chúng tôi sẽ sử dụng tập dữ liệu về các vụ giết người ở Hoa Kỳ theo tiểu bang. Giả sử chúng ta muốn tóm tắt sự phân bổ tỷ lệ giết người. Sử dụng các kỹ thuật đã học, chúng ta có thể nhanh chóng thấy rằng phép tính gần đúng chuẩn tắc không áp dụng được ở đây:
+
+```{r summaries-hist-qqplot-non-normal-data, out.width = "100%",  fig.width = 6, fig.height = 3, echo = FALSE}
+murders <- murders |> mutate(rate = total/population*100000)
+library(gridExtra)
+p1 <- murders |> ggplot(aes(x = rate)) + geom_histogram(binwidth = 0.5, color = "black") + ggtitle("Histogram")
+p2 <- murders |> ggplot(aes(sample = rate)) + 
+  geom_qq(dparams = summarize(murders, mean = mean(rate), sd = sd(rate))) +
+  geom_abline() + ggtitle("QQ-plot")
+grid.arrange(p1, p2, ncol = 2)
+```
+
+Trong trường hợp này, biểu đồ ở trên hoặc biểu đồ mật độ trơn sẽ đóng vai trò là bản tóm tắt tương đối ngắn gọn.
+
+Bây giờ, giả sử những người quen chỉ nhận được hai con số làm bản tóm tắt yêu cầu chúng tôi đưa ra một bản tóm tắt bằng số nhỏ gọn hơn.
+
+Boxplot cung cấp một bản tóm tắt gồm năm số bao gồm phạm vi cùng với các phần tư (phần trăm thứ 25, 50 và 75). Boxplot thường bỏ qua các giá trị ngoại lệ khi tính toán phạm vi và thay vào đó vẽ chúng dưới dạng các điểm độc lập. Chúng tôi sẽ giải thích chi tiết về các ngoại lệ sau. Cuối cùng, anh ấy đề nghị chúng ta vẽ những con số này dưới dạng một “chiếc hộp” với những “râu” như thế này:
+
+```{r summaries-first-boxplot, echo = FALSE}
+murders |> ggplot(aes("",rate)) + geom_boxplot() +
+  coord_cartesian(xlim = c(0, 2)) + xlab("")
+```
+
+với hộp được xác định bởi phân vị 25% và 75% và phần râu hiển thị phạm vi. Khoảng cách giữa hai khoảng này được gọi là phạm vi liên vùng . Hai điểm được coi là ngoại lệ theo hàm R mặc định mà chúng tôi đã sử dụng. Trung vị được thể hiện bằng một đường ngang. Ngày nay, chúng tôi gọi đây là những ô vuông .
+
+Chỉ từ biểu đồ đơn giản này, chúng ta biết rằng trung vị là khoảng 2,5, phân bố không đối xứng và phạm vi từ 0 đến 5 đối với đại đa số các bang có hai ngoại lệ.
+
+1.10 Sự phân tầng
+Trong phân tích dữ liệu, chúng ta thường chia các quan sát thành các nhóm dựa trên giá trị của một hoặc nhiều biến liên quan đến các quan sát đó. Ví dụ: trong phần tiếp theo, chúng tôi chia các giá trị chiều cao thành các nhóm dựa trên biến giới tính: nữ và nam. Chúng tôi gọi quy trình này là phân tầng và gọi các nhóm kết quả là tầng .
+
+Sự phân tầng là điều phổ biến trong trực quan hóa dữ liệu vì chúng ta thường quan tâm đến việc phân bổ các biến khác nhau như thế nào giữa các nhóm con khác nhau.
+
+Bằng cách sử dụng biểu đồ, biểu đồ mật độ và biểu đồ QQ, chúng tôi tin rằng dữ liệu chiều cao của nam giới gần đúng với phân phối chuẩn. Trong trường hợp này, chúng tôi báo cáo lại cho ET một bản tóm tắt rất ngắn gọn: chiều cao của nam giới tuân theo phân phối chuẩn với mức trung bình là 69,3 inch và SD là 3,6 inch. Với thông tin này, ET sẽ biết rõ điều gì sẽ xảy ra khi gặp các nam sinh của chúng ta. Tuy nhiên, để cung cấp một bức tranh hoàn chỉnh, chúng tôi cũng cần cung cấp bản tóm tắt về chiều cao của phụ nữ.
+
+Chúng tôi đã biết rằng ô vuông rất hữu ích khi chúng tôi muốn so sánh nhanh chóng hai hoặc nhiều phân phối. Dưới đây là chiều cao dành cho nam và nữ:
+
+```{R}
+heights |> ggplot(aes(sex, height, fill = sex)) + geom_boxplot()
+```
+
+Cốt truyện ngay lập tức tiết lộ rằng trung bình nam giới cao hơn nữ giới. Độ lệch chuẩn có vẻ giống nhau. Nhưng liệu phép tính gần đúng bình thường có áp dụng được cho dữ liệu chiều cao của phụ nữ được thu thập trong cuộc khảo sát không? Chúng tôi kỳ vọng rằng họ sẽ tuân theo phân phối chuẩn, giống như nam giới. Tuy nhiên, các sơ đồ thăm dò cho thấy rằng phép tính gần đúng không hữu ích bằng:
+
+```{r summaries-histogram-qqplot-female-heights, echo=FALSE, out.width="100%",  fig.width = 6, fig.height = 3}
+p1 <- heights |> filter(sex == "Female") |>
+  ggplot(aes(height)) +
+  geom_density(fill = "#F8766D") 
+p2 <- heights |> filter(sex == "Female") |> 
+  ggplot(aes(sample = scale(height))) +
+  geom_qq() + geom_abline() + ylab("Standard Units")
+grid.arrange(p1, p2, ncol = 2)
+```
+
+Chúng tôi thấy một điều mà chúng tôi không thấy ở con đực: ô mật độ có vết lồi thứ hai . Ngoài ra, biểu đồ QQ cho thấy các điểm cao nhất có xu hướng cao hơn mong đợi theo phân phối chuẩn. Cuối cùng, chúng ta cũng thấy năm điểm trong biểu đồ QQ cho thấy độ cao ngắn hơn dự kiến ​​đối với phân phối chuẩn. Khi báo cáo lại cho ET, chúng tôi có thể cần cung cấp biểu đồ thay vì chỉ độ lệch trung bình và tiêu chuẩn cho chiều cao của phụ nữ.
+
+Chúng tôi đã nhận thấy những gì chúng tôi không mong đợi để thấy. Nếu chúng ta xem xét các phân bố chiều cao khác của phụ nữ, chúng ta sẽ thấy rằng chúng gần đúng với phân bố chuẩn. Vậy tại sao nữ sinh viên của chúng ta lại khác biệt? Lớp chúng ta có phải là yêu cầu của đội bóng rổ nữ không? Có phải tỷ lệ nhỏ phụ nữ tự nhận là cao hơn họ không? Một cách giải thích khác, có lẽ có khả năng xảy ra hơn, đó là hình thức mà học sinh thường nhập chiều cao của mình Femalelà giới tính mặc định và một số nam sinh nhập chiều cao nhưng lại quên thay đổi biến giới tính. Trong mọi trường hợp, trực quan hóa dữ liệu đã giúp phát hiện ra lỗ hổng tiềm ẩn trong dữ liệu của chúng tôi.
+
+Về năm giá trị nhỏ nhất, lưu ý rằng các giá trị này là:
+
+```{r}
+heights |> filter(sex == "Female") |> 
+  top_n(5, desc(height)) |>
+  pull(height)
+#> [1] 51 53 55 52 52
+```
+Bởi vì đây là những độ cao được báo cáo nên có khả năng là học sinh đã cố ý đi vào 5'1", 5'2", 5'3"hoặc 5'5".
+
+
+1.11 Bài tập
+1. Trong murders tập dữ liệu, vùng là một biến phân loại và sau đây là phân bố của nó:
+
+```{r summaries-barplot-exercise, echo = FALSE}
+library(dslabs)
+ds_theme_set()
+murders |> group_by(region) |>
+  summarize(n = n()) |>
+  mutate(Proportion = n/sum(n), 
+         region = reorder(region, Proportion)) |>
+  ggplot(aes(x = region, y = Proportion, fill = region)) + 
+  geom_bar(stat = "identity", show.legend = FALSE) + 
+  xlab("")
+```
+
+Với 5% gần nhất, tỷ lệ các bang thuộc khu vực Bắc Trung Bộ là bao nhiêu?
+
+2. Điều nào sau đây là đúng:
+
+ a. Biểu đồ trên là biểu đồ.
+ b. Biểu đồ trên chỉ hiển thị bốn số có biểu đồ thanh.
+ c. Các danh mục không phải là con số, vì vậy việc lập biểu đồ phân bổ là vô nghĩa.
+ d. Màu sắc, không phải chiều cao của các thanh, mô tả sự phân bổ.
+
+3. Biểu đồ bên dưới hiển thị eCDF cho chiều cao nam giới:
+
+```{r summaries-ecdf-exercise, echo = FALSE}
+heights |> filter(sex == "Male") |> ggplot(aes(height)) + 
+  stat_ecdf() +
+  ylab("F(a)") + xlab("a")
+```
+
+Dựa vào cốt truyện, bao nhiêu phần trăm nam giới thấp hơn 75 inch? 
+ a. 100%
+ b. 95%
+ c. 80%
+ d. 72 inch
+
+4. Tính đến inch gần nhất, chiều cao nào mcó đặc điểm mà 1/2 số học sinh nam cao hơn mvà 1/2 số học sinh thấp hơn?
+ a. 61 inch
+ b. 64 inch
+ c. 69 inch
+ d. 74 inch
+
+5. Đây là eCDF về tỷ lệ giết người trên khắp các tiểu bang:
+
+```{r summaries-ecdf-exercise-2, echo = FALSE}
+murders |> mutate(murder_rate = total/population * 10^5) |>
+  ggplot(aes(murder_rate)) + 
+  stat_ecdf() +
+  ylab("F(a)") + xlab("a")
+```
+
+Biết rằng có 51 tiểu bang (tính DC) và dựa trên cốt truyện này, có bao nhiêu tiểu bang có tỷ lệ giết người lớn hơn 10 trên 100.000 dân?
+ a. 1
+ b. 5
+ c. 10
+ d. 50
+
+6. Dựa trên eCDF ở trên, câu nào sau đây là đúng:
+ a. Khoảng một nửa số bang có tỷ lệ giết người trên 7 trên 100.000 và nửa còn lại thấp hơn.
+ b. Hầu hết các bang đều có tỷ lệ giết người dưới 2 trên 100.000.
+ c. Tất cả các bang đều có tỷ lệ giết người trên 2 trên 100.000.
+ d. Ngoại trừ 4 bang, tỷ lệ giết người đều dưới 5 trên 100.000.
+
+7. Dưới đây là biểu đồ chiều cao nam giới trong heights tập dữ liệu của chúng tôi:
+
+```{r summaries-height-histogram-exercise, echo = FALSE}
+heights |> 
+  filter(sex == "Male") |> 
+  ggplot(aes(height)) + 
+  geom_histogram(binwidth = 1, color = "black")
+```
+
+Dựa vào biểu đồ này, có bao nhiêu nam giới có độ tuổi từ 63,5 đến 65,5?
+ a. 10
+ b. 24
+ c. 47
+ d. 100
+
+8. Khoảng bao nhiêu phần trăm người thấp hơn 60 inch?
+ a. 1%
+ b. 10%
+ c. 25%
+ d. 50%
+
+9. Dựa vào biểu đồ mật độ dưới đây, hãy cho biết tỷ lệ các bang của Hoa Kỳ có dân số trên 10 triệu người là bao nhiêu?
+
+```{r summaries-density-exercise, echo = FALSE}
+murders |> ggplot(aes(x = population/10^6)) + 
+  geom_density(fill = "grey") + 
+  scale_x_log10() +
+  xlab("Population in millions")
+```
+ a. 0,02
+ b. 0,15
+ c. 0,50
+ d. 0,55
+
+10. Dưới đây là ba ô mật độ. Có thể chúng đến từ cùng một tập dữ liệu?
+
+```{r summaries-density-exercise-2, echo = FALSE, warning = FALSE, message = FALSE}
+library(gridExtra)
+p1 <- murders |> ggplot(aes(x = population/10^6)) + 
+  geom_density(fill = "grey", bw = 5) + xlab("Population in millions") + ggtitle("1")
+p2 <- murders |> ggplot(aes(x = population/10^6)) + 
+  geom_density(fill = "grey", bw = .05) + scale_x_log10() + xlab("Population in millions") + ggtitle("2")
+p3 <- murders |> ggplot(aes(x = population/10^6)) + 
+  geom_density(fill = "grey", bw = 1) + scale_x_log10() + xlab("Population in millions") + ggtitle("3")
+grid.arrange(p1,p2,p3,ncol = 2)
+```
+
+Khẳng định nào sau đây là đúng:
+ a. Không thể nào chúng đến từ cùng một tập dữ liệu.
+ b. Chúng đến từ cùng một tập dữ liệu, nhưng các ô khác nhau do lỗi mã.
+ c. Chúng là cùng một tập dữ liệu, nhưng cốt truyện thứ nhất và thứ hai trơn tru hơn và cốt truyện thứ ba trơn tru hơn.
+ d. Chúng là cùng một tập dữ liệu, nhưng tập dữ liệu đầu tiên không nằm trong thang đo log, tập dữ liệu thứ hai được làm mịn dưới mức và tập dữ liệu thứ ba được làm mịn quá mức.
+
+11. Xác định biến chứa chiều cao của nam và nữ như sau:
+
+```{R}
+library(dslabs)
+male <- heights$height[heights$sex == "Male"]
+female <- heights$height[heights$sex == "Female"]
+```
+
+Chúng ta có bao nhiêu phép đo cho mỗi loại?
+
+12. Giả sử chúng ta không thể vẽ đồ thị và muốn so sánh các phân bố cạnh nhau. Chúng ta không thể chỉ liệt kê tất cả các con số. Thay vào đó, chúng ta sẽ xem xét phần trăm. Tạo một bảng năm hàng hiển thị female_percentilesvà male_percentilescó phân vị thứ 10, 30, 50, 70 và 90 cho mỗi giới tính. Sau đó tạo một khung dữ liệu với hai cột này làm cột.
+
+13. Nghiên cứu các biểu đồ sau đây thể hiện quy mô dân số theo quốc gia:
+
+```{r summaries-boxplot-exercise, echo = FALSE, message = FALSE}
+library(tidyverse)
+library(dslabs)
+ds_theme_set()
+tab <- gapminder |> filter(year == 2010) |> group_by(continent) |> select(continent, population)  
+tab |> ggplot(aes(x = continent, y = population/10^6)) + 
+  geom_boxplot() + 
+  scale_y_continuous(trans = "log10", breaks = c(1,10,100,1000)) + ylab("Population in millions")
+```
+Châu lục nào có quốc gia có quy mô dân số lớn nhất?
+
+14. Châu lục nào có quy mô dân số trung bình lớn nhất?
+
+15. Quy mô dân số trung bình của Châu Phi tính đến hàng triệu người gần nhất là bao nhiêu?
+
+16. Tỷ lệ các nước ở Châu Âu có dân số dưới 14 triệu người là bao nhiêu?
+ a. 0,99
+ b. 0,75
+ c. 0,50
+ d. 0,25
+
+17. Nếu chúng ta sử dụng phép chuyển đổi logarit, lục địa nào hiển thị ở trên có phạm vi liên vùng lớn nhất?
+
+18. Tải tập dữ liệu chiều cao và tạo một vectơ xchỉ có chiều cao nam:
+
+```{R}
+library(dslabs)
+x <- heights$height[heights$sex=="Male"]
+```
+
+Tỷ lệ dữ liệu nằm trong khoảng từ 69 đến 72 inch (cao hơn 69 nhưng ngắn hơn hoặc bằng 72)? Gợi ý: sử dụng toán tử logic và mean.
+
+19. Giả sử tất cả những gì bạn biết về dữ liệu là giá trị trung bình và độ lệch chuẩn. Sử dụng phép tính gần đúng thông thường để ước lượng tỷ lệ bạn vừa tính. Gợi ý: bắt đầu bằng cách tính giá trị trung bình và độ lệch chuẩn. Sau đó sử dụng pnormchức năng để dự đoán tỷ lệ.
+
+20. Lưu ý rằng phép tính gần đúng ở câu hỏi số 9 rất gần với phép tính chính xác ở câu hỏi đầu tiên. Bây giờ thực hiện nhiệm vụ tương tự cho các giá trị cực trị hơn. So sánh phép tính chính xác và phép tính gần đúng thông thường của khoảng (79,81), tỉ lệ thực lớn hơn tỉ lệ gần đúng bao nhiêu lần?
+
+21. Ước tính sự phân bố gần đúng của nam giới trưởng thành trên thế giới theo phân phối chuẩn với trung bình là 69 inch và độ lệch chuẩn là 3 inch. Sử dụng phép tính gần đúng này, hãy ước tính tỷ lệ nam giới trưởng thành cao từ 7 feet trở lên, được gọi là người cao 7 feet . Gợi ý: sử dụng pnorm hàm.
+
+22. Trên thế giới có khoảng 1 tỷ nam giới trong độ tuổi từ 18 đến 40. Hãy sử dụng câu trả lời của bạn cho câu hỏi trước để ước tính có bao nhiêu người đàn ông trong số này (18-40 tuổi) cao 7 feet hoặc cao hơn trên thế giới?
+
+23. Có khoảng 10 cầu thủ của Hiệp hội Bóng rổ Quốc gia (NBA) cao từ 7 feet trở lên. Sử dụng câu trả lời cho hai câu hỏi trước, tỷ lệ cầu thủ 7 chân từ 18 đến 40 tuổi trên thế giới tham gia NBA là bao nhiêu?
+
+14. Lặp lại các phép tính được thực hiện ở câu hỏi trước để tìm chiều cao của Lebron James: 6 feet 8 inch. Có khoảng 150 người chơi có chiều cao ít nhất như vậy.
+
+25. Khi trả lời các câu hỏi trước, chúng tôi thấy rằng việc một cầu thủ bảy chân trở thành cầu thủ NBA không phải là chuyện hiếm. Điều gì sẽ là một lời phê bình công bằng cho các tính toán của chúng tôi:
+ a. Luyện tập và tài năng là điều tạo nên một cầu thủ bóng rổ giỏi chứ không phải chiều cao.
+ b. Giá trị gần đúng bình thường không phù hợp với chiều cao.
+ c. Như đã thấy trong câu hỏi 10, phép tính gần đúng thông thường có xu hướng đánh giá thấp các giá trị cực trị. Có thể có nhiều hơn 7 footer so với dự đoán của chúng tôi.
+ d. Như đã thấy trong câu hỏi 10, phép tính gần đúng thông thường có xu hướng đánh giá quá cao các giá trị cực trị. Có thể có ít bảy chân trang hơn chúng tôi dự đoán.
+
+2   Tóm tắt chặt chẽ 
+Lưu ý rằng độ cao mà chúng ta đã khám phá ở Chương 1 không phải là độ cao ban đầu được học sinh báo cáo. Thử thách thứ hai liên quan đến việc khám phá độ cao được báo cáo ban đầu , cũng được bao gồm trong gói dslabs của reported_heightsđối tượng. Chúng ta sẽ thấy rằng do có sai sót trong báo cáo nên việc sử dụng các bản tóm tắt chặt chẽ là cần thiết để tạo ra các bản tóm tắt hữu ích.
+2.1 Ngoại lệ
+Trước đây chúng tôi đã mô tả cách biểu đồ hộp hiển thị các giá trị ngoại lệ nhưng chúng tôi không cung cấp định nghĩa chính xác. Ở đây chúng ta thảo luận về các giá trị ngoại lệ, các phương pháp có thể giúp phát hiện chúng và các bản tóm tắt có tính đến sự hiện diện của chúng.
+
+Các ngoại lệ rất phổ biến trong phân tích dữ liệu trong thế giới thực. Việc ghi dữ liệu có thể phức tạp và người ta thường quan sát thấy các điểm dữ liệu được tạo ra do lỗi. Ví dụ: một thiết bị giám sát cũ có thể đọc ra các phép đo vô nghĩa trước khi hỏng hoàn toàn. Lỗi của con người cũng là nguồn gốc của các ngoại lệ, đặc biệt khi việc nhập dữ liệu được thực hiện thủ công. Ví dụ: một cá nhân có thể nhập nhầm chiều cao của họ bằng cm thay vì inch hoặc đặt số thập phân sai vị trí.
+
+Làm cách nào để chúng ta phân biệt một giá trị ngoại lệ với các phép đo quá lớn hoặc quá nhỏ chỉ đơn giản là do độ biến thiên dự kiến? Đây không phải lúc nào cũng là một câu hỏi dễ trả lời, nhưng chúng tôi cố gắng cung cấp một số hướng dẫn. Hãy bắt đầu với một trường hợp đơn giản.
+
+Giả sử một đồng nghiệp được giao nhiệm vụ thu thập dữ liệu nhân khẩu học cho một nhóm nam giới. Dữ liệu báo cáo chiều cao tính bằng feet và được lưu trữ trong đối tượng:
+```{r}
+library(dslabs)
+str(outlier_example)
+#>  num [1:500] 5.59 5.8 5.54 6.15 5.83 5.54 5.87 5.93 5.89 5.67 ...
+```
+Đồng nghiệp của chúng tôi sử dụng thực tế là chiều cao thường gần đúng bằng phân phối chuẩn và tóm tắt dữ liệu với độ lệch trung bình và độ lệch chuẩn
+```{r}
+mean(outlier_example)
+#> [1] 6.1
+sd(outlier_example)
+#> [1] 7.8
+```
+và viết một báo cáo về một sự thật thú vị là nhóm nam giới này cao hơn bình thường rất nhiều. Chiều cao trung bình là hơn sáu feet! Tuy nhiên, khi sử dụng kỹ năng phân tích dữ liệu của mình, bạn nhận thấy một điều không mong đợi khác: độ lệch chuẩn là trên 7 feet. Cộng và trừ hai độ lệch chuẩn, bạn lưu ý rằng 95% dân số này sẽ có chiều cao trong khoảng -9,4892954, 21,6969354 feet, điều này không có ý nghĩa gì. Một âm mưu nhanh chóng cho thấy vấn đề:
+```{r}
+boxplot(outlier_example)
+```
+Dường như có ít nhất một giá trị vô nghĩa vì chúng ta biết rằng độ cao 180 feet là không thể. Boxplot phát hiện điểm này như một điểm ngoại lệ.
+2.2 Số trung vị
+Khi chúng ta có một ngoại lệ như thế này, giá trị trung bình có thể trở nên rất lớn. Về mặt toán học, chúng ta có thể làm cho mức trung bình lớn như chúng ta muốn chỉ bằng cách thay đổi một số: với 500 điểm dữ liệu, chúng ta có thể tăng mức trung bình lên bất kỳ số lượng nào
+bằng cách thêm
+500 thành một số duy nhất. Trung vị, được định nghĩa là giá trị trong đó một nửa giá trị nhỏ hơn và nửa còn lại lớn hơn, là giá trị vững chắc đối với các giá trị ngoại lệ như vậy. Cho dù chúng ta tạo điểm lớn nhất lớn đến đâu thì trung vị vẫn giữ nguyên.
+
+Với dữ liệu này, trung vị là:
+```{r}
+median(outlier_example)
+```
+đó là khoảng 3 inch.
+2.4 Định nghĩa về các ngoại lệ dựa trên dữ liệu
+Trong R, các điểm nằm ngoài phạm vi của ô được gọi là các điểm ngoại lệ . Định nghĩa về ngoại lệ này được John Tukey đưa ra. Râu trên cùng kết thúc ở phân vị thứ 75 cộng với 1,5 x IQR. Tương tự, râu dưới kết thúc ở phân vị thứ 25 trừ 1,5 x IQR. Nếu chúng ta xác định tứ phân vị thứ nhất và thứ ba là Q1 Và Q3 , tương ứng, thì giá trị ngoại lệ là bất cứ thứ gì nằm ngoài phạm vi:
+        [Q1 - 1.5 X (Q3 - Q1),Q3 + 1.5 X (Q3 - Q1)].
+
+Khi dữ liệu được phân phối bình thường, đơn vị tiêu chuẩn của các giá trị này là:
+```{r}
+q3 <- qnorm(0.75)
+q1 <- qnorm(0.25)
+iqr <- q3 - q1
+r <- c(q1 - 1.5*iqr, q3 + 1.5*iqr)
+r
+```
+Sử dụng pnormhàm, chúng ta thấy rằng 99,3% dữ liệu nằm trong khoảng này.
+
+Hãy nhớ rằng đây không phải là một sự kiện cực đoan: nếu chúng ta có 1.000 điểm dữ liệu được phân phối bình thường, chúng ta dự kiến ​​sẽ thấy khoảng 7 điểm nằm ngoài phạm vi này. Nhưng đây không phải là những ngoại lệ vì chúng ta mong đợi sẽ thấy chúng dưới những biến thể điển hình.
+
+Nếu muốn một ngoại lệ hiếm hơn, chúng ta có thể tăng 1,5 lên một con số lớn hơn. Tukey cũng sử dụng 3 và gọi đây là những giá trị ngoại lệ . Với phân phối chuẩn, 99,9998% dữ liệu rơi vào khoảng này. Điều này có nghĩa là có khoảng 2 phần triệu cơ hội nằm ngoài phạm vi. Trong geom_boxplothàm, điều này có thể được kiểm soát bởi outlier.sizeđối số, mặc định là 1,5.
+
+Số đo 180 inch vượt xa phạm vi dữ liệu chiều cao:
+```{r}
+max_height <- quantile(outlier_example, 0.75) + 3*IQR(outlier_example)
+max_height
+```
+Nếu loại bỏ giá trị này, chúng ta có thể thấy rằng dữ liệu trên thực tế được phân phối bình thường như mong đợi:
+```{r}
+x <- outlier_example[outlier_example < max_height]
+qqnorm(x)
+qqline(x)
+```
+
+2.5 Độ lệch tuyệt đối trung vị
+Một cách khác để ước tính chính xác độ lệch chuẩn khi có các giá trị ngoại lệ là sử dụng độ lệch tuyệt đối trung vị (MAD). Để tính MAD, trước tiên chúng ta tính trung vị, sau đó với mỗi giá trị, chúng ta tính khoảng cách giữa giá trị đó và trung vị. MAD được định nghĩa là trung vị của các khoảng cách này. Vì các lý do kỹ thuật không được thảo luận ở đây, đại lượng này cần được nhân với 1,4826 để đảm bảo nó gần đúng với độ lệch chuẩn thực tế. Chức madnăng này đã kết hợp sự điều chỉnh này. Đối với dữ liệu chiều cao, chúng tôi nhận được MAD là:
+```{r}
+mad(outlier_example)
+
+```
+đó là khoảng 3 inch.
+
+
+
+
 
 
