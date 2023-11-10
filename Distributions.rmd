@@ -1,0 +1,160 @@
+---
+title: "Phân tích dữ liệu với R"
+output: html_notebook
+---
+                          Thống kê tóm tắt
+Chúng tôi bắt đầu bằng cách mô tả một kỹ thuật phân tích dữ liệu đơn giản nhưng mạnh mẽ: xây dựng các bản tóm tắt dữ liệu. Mặc dù cách tiếp cận này không yêu cầu mô hình toán học hoặc xác suất, nhưng động lực của những tóm tắt mà chúng tôi mô tả sau này sẽ giúp chúng tôi hiểu cả hai chủ đề này.
+
+Bạn có thể nhận thấy rằng dữ liệu số thường được tóm tắt bằng giá trị trung bình . Ví dụ, chất lượng của một trường trung học đôi khi được tóm tắt bằng một con số: điểm trung bình trong một bài kiểm tra tiêu chuẩn. Đôi khi, số thứ hai được báo cáo: độ lệch chuẩn . Ví dụ: bạn có thể đọc một báo cáo cho biết điểm số là 680 cộng hoặc trừ 50, với độ lệch chuẩn là 50. Báo cáo đã tóm tắt toàn bộ điểm số chỉ bằng hai con số. Điều này có phù hợp không? Có thông tin quan trọng nào mà chúng tôi bỏ sót khi chỉ xem bản tóm tắt này thay vì toàn bộ danh sách không? Ở đây chúng tôi trả lời những câu hỏi này và thúc đẩy một số thống kê và biểu đồ tóm tắt hữu ích, bao gồm giá trị trung bình, độ lệch chuẩn, trung vị, tứ phân vị, biểu đồ và biểu đồ mật độ.
+1   Phân phối
+Để minh họa các khái niệm cần thiết để hiểu sự phân bố và cách chúng liên quan đến số liệu thống kê tóm tắt, chúng tôi sẽ giả vờ rằng chúng tôi phải mô tả chiều cao của các bạn cùng lớp với ET, một người ngoài hành tinh chưa từng nhìn thấy con người. Bước đầu tiên, chúng ta cần thu thập dữ liệu. Để làm điều này, chúng tôi yêu cầu học sinh báo cáo chiều cao của mình tính bằng inch. Chúng tôi yêu cầu họ cung cấp thông tin về giới tính vì chúng tôi biết có hai cách phân bổ giới tính khác nhau. Chúng tôi thu thập dữ liệu và lưu nó vào heightskhung dữ liệu có trong gói dslabs .
+```{r}
+library(dslabs)
+```
+Một cách để truyền đạt độ cao cho ET là chỉ cần gửi cho anh ấy danh sách 1050 độ cao này. Nhưng có nhiều cách hiệu quả hơn để truyền đạt thông tin này và việc hiểu khái niệm phân phối sẽ giúp ích. Để đơn giản hóa việc giải thích, trước tiên chúng tôi tập trung vào chiều cao của nam giới. Chúng tôi kiểm tra dữ liệu chiều cao của phụ nữ trong Phần 1.10 .
+
+Hóa ra, trong một số trường hợp, trung bình và độ lệch chuẩn là tất cả những gì chúng ta cần để hiểu dữ liệu. Chúng ta sẽ tìm hiểu các kỹ thuật trực quan hóa dữ liệu sẽ giúp chúng ta xác định khi nào bản tóm tắt hai con số này là phù hợp. Những kỹ thuật tương tự này sẽ được sử dụng như một giải pháp thay thế khi hai số là không đủ.
+1.1 Các loại biến
+Chúng ta sẽ làm việc với hai loại biến: phân loại và số. Mỗi nhóm có thể được chia thành hai nhóm khác: nhóm phân loại có thể có thứ tự hoặc không, trong khi các biến số có thể rời rạc hoặc liên tục.
+
+Khi mỗi mục trong một vectơ đến từ một trong số ít nhóm, chúng tôi gọi dữ liệu là dữ liệu phân loại . Hai ví dụ đơn giản là giới tính (nam hoặc nữ) và các vùng của Hoa Kỳ (Đông Bắc, Nam, Bắc Trung Bộ, Tây). Một số dữ liệu phân loại có thể được sắp xếp ngay cả khi chúng không phải là số, chẳng hạn như độ cay (nhẹ, vừa, cay). Trong sách giáo khoa thống kê, dữ liệu phân loại theo thứ tự được gọi là dữ liệu thứ tự .
+
+Ví dụ về dữ liệu số là quy mô dân số, tỷ lệ giết người và chiều cao. Một số dữ liệu số có thể được coi là phân loại theo thứ tự. Chúng ta có thể chia dữ liệu số thành liên tục và rời rạc. Biến liên tục là những biến có thể nhận bất kỳ giá trị nào, chẳng hạn như độ cao, nếu được đo với độ chính xác đủ. Ví dụ: một cặp song sinh có thể có kích thước lần lượt là 68,12 và 68,11 inch. Các số liệu, chẳng hạn như số vụ giết người bằng súng mỗi năm, là rời rạc vì chúng phải là số tròn.
+
+Hãy nhớ rằng dữ liệu số rời rạc có thể được coi là thứ tự. Mặc dù điều này đúng về mặt kỹ thuật, nhưng chúng ta thường dành thuật ngữ dữ liệu thứ tự cho các biến thuộc một số ít các nhóm khác nhau, trong đó mỗi nhóm có nhiều thành viên. Ngược lại, khi chúng ta có nhiều nhóm với ít trường hợp trong mỗi nhóm, chúng ta thường gọi chúng là các biến số rời rạc. Vì vậy, ví dụ, số bao thuốc lá mà một người hút mỗi ngày, làm tròn đến bao gần nhất, sẽ được coi là thứ tự, trong khi số lượng thuốc lá thực tế sẽ được coi là một biến số. Tuy nhiên, thực sự, có những ví dụ có thể được coi là cả số và thứ tự.
+
+Bản tóm tắt thống kê cơ bản nhất của danh sách các đối tượng hoặc số là sự phân bố của nó . Cách đơn giản nhất để nghĩ về phân phối là mô tả ngắn gọn một danh sách có nhiều mục. Khái niệm này không phải là mới đối với độc giả của cuốn sách này. Ví dụ: với dữ liệu phân loại, phân phối chỉ mô tả tỷ lệ của từng danh mục duy nhất. Dưới đây là một ví dụ với các khu vực của Hoa Kỳ:
+```{r}
+prop.table(table(state.region))
+#> state.region
+#>     Northeast         South North Central          West 
+#>          0.18          0.32          0.24          0.26
+```
+Khi dữ liệu ở dạng số, nhiệm vụ xây dựng một bản tóm tắt dựa trên phân bố sẽ khó khăn hơn. Chúng tôi giới thiệu một vấn đề nhân tạo, mang tính minh họa, thúc đẩy, giúp chúng tôi giới thiệu các khái niệm cần thiết để hiểu về phân bố.
+1.2 Hàm phân phối tích lũy theo kinh nghiệm
+Dữ liệu số không được phân loại cũng có phân phối. Nói chung, khi dữ liệu không được phân loại, việc báo cáo tần suất của mỗi mục không phải là một bản tóm tắt hiệu quả vì hầu hết các mục đều là duy nhất. Trong nghiên cứu điển hình của chúng tôi, trong khi một số học sinh báo cáo chiều cao là 68 inch thì chỉ có một học sinh báo cáo chiều cao là 68.503937007874inch và chỉ một học sinh báo cáo chiều cao 68.8976377952756là inch. Chúng tôi giả định rằng họ đã chuyển đổi lần lượt từ 174 và 175 cm.
+
+Sách giáo khoa thống kê dạy chúng ta rằng một cách hữu ích hơn để xác định phân bố cho dữ liệu số là xác định hàm báo cáo tỷ lệ của các mục nhập dữ liệu x đó là dưới đây a,với mọi giá trị có thể có của a. Hàm này được gọi là hàm phân phối tích lũy thực nghiệm (eCDF) và thường được ký hiệu bằng F :
+      F(a) = biến ngẫu nhiên X lấy giá trị nhỏ hơn hay bằng a
+Dưới đây là biểu đồ cho dữ liệu về chiều cao nam giới.
+```{r}
+install.packages("conflicted")
+
+```
+
+```{r}
+library(tidyverse)
+heights |> filter(sex == "Male") |> 
+  ggplot(aes(height)) + 
+  stat_ecdf() +
+  labs(x = "a", y = "F(a)")
+```
+Tương tự như bảng tần số thực hiện đối với dữ liệu phân loại, eCDF xác định sự phân bổ cho dữ liệu số. Từ đồ thị, chúng ta có thể thấy rằng 16% giá trị nhỏ hơn 65, vìF(66)= 0,1637931 hoặc 84% giá trị dưới 72, vì F(72)= 0,841133, v.v. Trên thực tế, chúng ta có thể báo cáo tỷ lệ các giá trị giữa hai độ cao bất kỳ, chẳng hạn a và b, bằng cách tính toán 
+F(b) - F(a)
+. Điều này có nghĩa là nếu chúng tôi gửi biểu đồ trên cho ET, anh ấy sẽ có tất cả thông tin cần thiết để xây dựng lại toàn bộ danh sách. Diễn giải câu “một bức tranh đáng giá ngàn lời nói”, trong trường hợp này, một bức tranh có giá trị như 812 con số.
+
+Lưu ý: lý do chúng tôi thêm từ thực nghiệm là vì, như chúng ta sẽ thấy trong Phần 4.1 ), hàm phân phối tích lũy (CDF có thể được định nghĩa về mặt toán học, nghĩa là không có bất kỳ dữ liệu nào.
+1.3 Biểu đồ
+Mặc dù khái niệm eCDF được thảo luận rộng rãi trong sách giáo khoa thống kê nhưng biểu đồ tóm tắt thực tế không phổ biến lắm trong thực tế. Lý do chính là nó không dễ dàng truyền tải các đặc điểm được quan tâm như: phân phối tập trung ở giá trị nào? Sự phân phối có đối xứng không? Phạm vi nào chứa 95% giá trị? Biểu đồ được ưa thích hơn nhiều vì chúng tạo điều kiện thuận lợi cho việc trả lời những câu hỏi như vậy. Biểu đồ chỉ hy sinh một chút thông tin để tạo ra những bản tóm tắt dễ hiểu hơn nhiều.
+
+Cách đơn giản nhất để tạo biểu đồ là chia khoảng dữ liệu của chúng ta thành các thùng không chồng chéo có cùng kích thước. Sau đó, đối với mỗi thùng, chúng tôi đếm số giá trị nằm trong khoảng đó. Biểu đồ biểu thị các số đếm này dưới dạng các thanh có đáy của thanh được xác định bởi các khoảng. Đây là biểu đồ cho dữ liệu chiều cao chia phạm vi giá trị thành các khoảng một inch:
+(49.5,50.5] ,(50.5,51.5],(51.5,52.5],(52.5,53.5],...,(82.5,83.5]
+```{r}
+heights |> filter(sex == "Male") |> 
+  ggplot(aes(height)) + 
+  geom_histogram(binwidth = 1, color = "black")
+```
+Như bạn có thể thấy trong hình trên, biểu đồ tương tự như barplot, nhưng nó khác ở chỗ trục x là số chứ không phải phân loại.
+
+Nếu chúng tôi gửi âm mưu này tới ET, anh ấy sẽ ngay lập tức biết được một số đặc tính quan trọng về dữ liệu của chúng tôi. Đầu tiên, phạm vi dữ liệu là từ 50 đến 84 với phần lớn (hơn 95%) nằm trong khoảng từ 63 đến 75 inch. Thứ hai, chiều cao gần đối xứng khoảng 69 inch. Ngoài ra, bằng cách cộng số lượng, ET có thể thu được tỷ lệ gần đúng rất tốt của dữ liệu trong bất kỳ khoảng thời gian nào. Do đó, biểu đồ trên không chỉ dễ diễn giải mà còn cung cấp gần như tất cả thông tin có trong danh sách thô gồm 812 độ cao với số lượng khoảng 30 thùng.
+
+Chúng ta mất thông tin gì? Lưu ý rằng tất cả các giá trị trong mỗi khoảng đều được xử lý như nhau khi tính toán chiều cao của thùng. Vì vậy, ví dụ: biểu đồ không phân biệt giữa 64, 64,1 và 64,2 inch. Cho rằng những khác biệt này hầu như không thể nhận thấy bằng mắt thường, nên ý nghĩa thực tế là không đáng kể và chúng tôi có thể tóm tắt dữ liệu chỉ còn 23 con số.
+1.4 Mật độ làm mịn
+Biểu đồ mật độ mịn tương tự như biểu đồ, nhưng dữ liệu không được chia thành các thùng. Đây là biểu đồ mật độ mượt mà trông như thế nào đối với dữ liệu độ cao của chúng tôi:
+```{r}
+heights |> 
+  filter(sex == "Male") |> 
+  ggplot(aes(height)) + 
+  geom_density(alpha = 0.2, fill = "#00BFC4")
+```
+Trong biểu đồ này, chúng ta không còn các cạnh sắc nét ở các ranh giới khoảng và nhiều đỉnh cục bộ đã bị loại bỏ. Ngoài ra, tỷ lệ của trục y đã thay đổi từ số lượng sang mật độ .
+
+Để hiểu được mật độ mịn, chúng ta phải hiểu các ước tính , một chủ đề mà chúng ta sẽ không đề cập đến sau này. Tuy nhiên, chúng tôi cung cấp giải thích theo kinh nghiệm để giúp bạn hiểu những điều cơ bản.
+
+Khái niệm mới chính mà bạn phải hiểu là chúng tôi giả định rằng danh sách các giá trị được quan sát của chúng tôi là tập hợp con của một danh sách lớn hơn nhiều các giá trị không được quan sát. Về chiều cao, bạn có thể tưởng tượng rằng danh sách 812 nam sinh của chúng tôi đến từ một danh sách giả định chứa tất cả chiều cao của tất cả nam sinh trên toàn thế giới được đo rất chính xác. Giả sử có 1.000.000 phép đo này. Danh sách giá trị này có sự phân bổ, giống như bất kỳ danh sách giá trị nào và sự phân bổ lớn hơn này thực sự là điều chúng tôi muốn báo cáo cho ET vì nó tổng quát hơn nhiều. Thật không may, chúng ta không được nhìn thấy nó.
+
+Tuy nhiên, chúng tôi đưa ra một giả định có thể giúp chúng tôi ước chừng nó. Nếu chúng ta có 1.000.000 giá trị, được đo rất chính xác, chúng ta có thể tạo biểu đồ với các thùng rất nhỏ. Giả định là nếu chúng tôi hiển thị điều này thì chiều cao của các thùng liên tiếp sẽ tương tự nhau. Đây chính là ý nghĩa của từ trơn tru: chúng tôi không có bước nhảy vọt về độ cao của các thùng liên tiếp
+Tuy nhiên, hãy nhớ rằng trơn tru là một thuật ngữ tương đối. Chúng ta thực sự có thể kiểm soát độ mịn của đường cong xác định mật độ mịn thông qua một tùy chọn trong hàm tính toán đường cong mật độ mịn. Dưới đây là hai ví dụ sử dụng các mức độ mượt mà khác nhau trên cùng một biểu đồ:
+```{r}
+install.packages("gridExtra")
+
+```
+```{r}
+detach("package:gridExtra", unload = TRUE)
+```
+
+
+```{r}
+p <- heights |> filter(sex == "Male") |> 
+  ggplot(aes(height)) +
+  geom_histogram(aes(y = after_stat(density)), binwidth = 1, alpha = 0.5) 
+
+p1 <- p +  geom_line(stat = 'density', adjust = 0.5)
+p2 <- p +  geom_line(stat = 'density', adjust = 2) 
+
+library(gridExtra)
+#> 
+#> Attaching package: 'gridExtra'
+#> The following object is masked from 'package:dplyr':
+#> 
+#>     combine
+grid.arrange(p1,p2, ncol = 2)
+```
+Chúng ta cần thực hiện lựa chọn này một cách cẩn thận vì bản tóm tắt thu được có thể thay đổi cách diễn giải dữ liệu của chúng ta. Chúng ta nên chọn mức độ mượt mà mà chúng ta có thể bảo vệ là đại diện cho dữ liệu cơ bản. Về chiều cao, chúng tôi thực sự có lý do để tin rằng tỷ lệ những người có chiều cao tương tự sẽ giống nhau. Ví dụ: tỷ lệ 72 inch sẽ giống với tỷ lệ 71 hơn là tỷ lệ 78 hoặc 65. Điều này ngụ ý rằng đường cong phải khá mượt; nghĩa là đường cong sẽ trông giống ví dụ ở bên phải hơn là ở bên trái.
+
+Mặc dù biểu đồ là bản tóm tắt không có giả định nhưng mật độ được làm mịn dựa trên một số giả định.
+
+Lưu ý rằng việc diễn giải trục y của biểu đồ mật độ trơn không hề đơn giản. Nó được chia tỷ lệ sao cho diện tích bên dưới đường cong mật độ cộng lại bằng 1. Nếu bạn tưởng tượng chúng ta tạo thành một thùng có chiều dài cơ sở là 1 đơn vị, giá trị trục y cho chúng ta biết tỷ lệ của các giá trị trong thùng đó. Tuy nhiên, điều này chỉ đúng với các thùng có kích thước 1. Đối với các khoảng kích thước khác, cách tốt nhất để xác định tỷ lệ dữ liệu trong khoảng đó là tính tỷ lệ của tổng diện tích chứa trong khoảng đó. 
+1.5 Phân phối chuẩn
+Biểu đồ và biểu đồ mật độ cung cấp những tóm tắt tuyệt vời về sự phân bố. Nhưng chúng ta có thể tóm tắt thêm nữa không? Chúng ta thường thấy độ lệch trung bình và độ lệch chuẩn được sử dụng làm số liệu thống kê tóm tắt: một bản tóm tắt gồm hai số! Để hiểu những tóm tắt này là gì và tại sao chúng được sử dụng rộng rãi như vậy, chúng ta cần hiểu phân phối chuẩn.
+
+Phân phối chuẩn, còn được gọi là đường cong chuông và phân phối Gaussian, là một trong những khái niệm toán học nổi tiếng nhất trong lịch sử. Lý do cho điều này là sự phân bố xấp xỉ bình thường xảy ra trong nhiều tình huống, bao gồm tiền thắng cờ bạc, chiều cao, cân nặng, huyết áp, điểm kiểm tra tiêu chuẩn và sai số đo lường thực nghiệm. Có những lời giải thích cho điều này, nhưng chúng tôi sẽ mô tả những điều này sau. Ở đây chúng tôi tập trung vào cách phân phối chuẩn giúp chúng tôi tóm tắt dữ liệu.
+
+Thay vì sử dụng dữ liệu, phân phối chuẩn được xác định bằng công thức toán học. Đối với bất kỳ khoảng thời gian nào(a,b)
+, tỷ lệ các giá trị trong khoảng đó có thể được tính bằng công thức sau:
+
+$$
+Pr(a < x ≤ b)= \int_{a}^{b} \frac{1}{\sqrt{2\pi}{\sigma}}e^{-\frac{1}{2}} {(\frac{x-μ}{\sigma})}^2dx
+$$
+Bạn không cần phải ghi nhớ hay hiểu chi tiết công thức. Nhưng lưu ý rằng nó được xác định hoàn toàn chỉ bằng hai tham số:μ Và σ .
+Các ký hiệu còn lại trong công thức biểu thị các khoảng kết thúc,a Và b 
+và các hằng số toán học đã biết π và e 
+. Hai thông số này μ Và σ
+, được gọi tương ứng là giá trị trung bình (còn gọi là giá trị trung bình ) và độ lệch chuẩn (SD) của phân bố (và là các chữ cái Hy Lạp cho m
+Và s).
+Thực tế là phân bố được xác định chỉ bằng hai tham số ngụ ý rằng nếu một tập dữ liệu gần đúng bằng phân phối chuẩn, thì tất cả thông tin cần thiết để mô tả phân bố có thể được mã hóa chỉ bằng hai số: trung bình và độ lệch chuẩn. Bây giờ chúng ta xác định các giá trị này cho một danh sách số tùy ý.
+Đối với danh sách các số chứa trong vectơ x, giá trị trung bình được xác định là:
+```{r}
+m <- sum(x) / length(x)
+```
+và SD được định nghĩa là:
+```{r}
+s <- sqrt(sum((x - m)^2) / length(x))
+```
+có thể được hiểu là khoảng cách trung bình giữa các giá trị và giá trị trung bình của chúng.
+
+Hãy tính các giá trị chiều cao của nam giới mà chúng ta sẽ lưu trữ trong đối tượng x:
+```{r}
+index <- heights$sex == "Male"
+x <- heights$height[index]
+```
+Các hàm dựng sẵn meanvà sdcó thể sử dụng tại đây:
+```{r}
+m <- mean(x)
+s <- sd(x)
+```
+Vì những lý do được giải thích ở Mục 10.2.1 , sd(x)hãy chia cho length(x)-1thay vì length(x). Nhưng lưu ý rằng khi nào length(x)lớn sd(x)và sqrt(sum((x-mu)^2) / length(x))thực tế bằng nhau.
+1.6 Đơn vị tiêu chuẩn
+Đối với dữ liệu có phân bố xấp xỉ chuẩn, sẽ thuận tiện hơn khi nghĩ về đơn vị tiêu chuẩn . Đơn vị tiêu chuẩn của một giá trị cho chúng ta biết độ lệch chuẩn so với giá trị trung bình là bao nhiêu. Cụ thể, đối với một giá trị xtừ một vectơ X, chúng tôi xác định giá trị của xtheo đơn vị tiêu chuẩn tương ứng là z = (x - m)/swith mvà sđộ lệch trung bình và độ lệch chuẩn của X. Tại sao điều này lại thuận tiện?
+
+
